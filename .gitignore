@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+
+# venv
+venv/
+.env/
+
+# IDE
+.idea/
+*.iml
+
+# Data (VERY IMPORTANT)
+data/
+
+# Large files
+*.pt
+*.npz
+*.npy
+*.pkl
+*.zip
+
+# Results / outputs
+results/
+*.csv
+*.log
+*.png
+
+# Temporary / misc
+*.xml
