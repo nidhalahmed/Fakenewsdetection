@@ -1,6 +1,5 @@
 venv/
 GNN-FakeNews/data/
-GNN-FakeNews/results/
 GNN-FakeNews/utils/__pycache__/
 __pycache__/
 *.pyc
