@@ -25,9 +25,13 @@ MODELS_DIR="gnn/models"
 
 declare -A MODEL_FILES=(
   ["gin_base"]="${MODELS_DIR}/gin_base.py"
+  ["gin_pr"]="${MODELS_DIR}/gin_pr.py"
+  ["gin_temp"]="${MODELS_DIR}/gin_temp.py"
+  ["gin_temp_pr"]="${MODELS_DIR}/gin_temp_pr.py"
   ["gin_topo"]="${MODELS_DIR}/gin_topo.py"
   ["gin_topo_pr"]="${MODELS_DIR}/gin_topo_pr.py"
   ["gin_topo_temp"]="${MODELS_DIR}/gin_topo_temp.py"
+  ["ginplus"]="${MODELS_DIR}/ginplus.py"
 )
 
 print_usage() {
@@ -37,9 +41,13 @@ Usage:
 
 Available models:
   gin_base
+  gin_pr
+  gin_temp
+  gin_temp_pr
   gin_topo
   gin_topo_pr
   gin_topo_temp
+  ginplus
 
 Examples:
   bash scripts/run_models.sh
@@ -101,7 +109,16 @@ main() {
   local selected_models=()
 
   if [[ "$#" -eq 0 ]]; then
-    selected_models=("gin_base" "gin_topo" "gin_topo_pr" "gin_topo_temp")
+    selected_models=(
+      "gin_base"
+      "gin_pr"
+      "gin_temp"
+      "gin_temp_pr"
+      "gin_topo"
+      "gin_topo_pr"
+      "gin_topo_temp"
+      "ginplus"
+    )
   else
     selected_models=("$@")
   fi

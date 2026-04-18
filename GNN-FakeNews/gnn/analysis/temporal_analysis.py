@@ -1,4 +1,3 @@
-import os
 import pickle
 import numpy as np
 import pandas as pd
@@ -151,7 +150,7 @@ def build_graph_time_rows(dataset_name, node_graph_id, graph_labels, time_map):
 
 
 def save_basic_plots(df, dataset_name):
-    out_dir = BASE_DIR / "project" / "temporal_plots"
+    out_dir = BASE_DIR / "results" / "temporal_plots"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     label_names = {0: "real", 1: "fake"}
@@ -164,7 +163,7 @@ def save_basic_plots(df, dataset_name):
         df_plot[df_plot["label"] == 0]["burstiness"].dropna(),
         df_plot[df_plot["label"] == 1]["burstiness"].dropna(),
     ]
-    plt.boxplot(data, labels=["real", "fake"])
+    plt.boxplot(data, tick_labels=["real", "fake"])
     plt.ylabel("Burstiness")
     plt.title(f"{dataset_name}: Burstiness by Label")
     plt.tight_layout()
@@ -177,7 +176,7 @@ def save_basic_plots(df, dataset_name):
         df_plot[df_plot["label"] == 0]["lifetime"].dropna(),
         df_plot[df_plot["label"] == 1]["lifetime"].dropna(),
     ]
-    plt.boxplot(data, labels=["real", "fake"])
+    plt.boxplot(data, tick_labels=["real", "fake"])
     plt.ylabel("Lifetime")
     plt.title(f"{dataset_name}: Lifetime by Label")
     plt.tight_layout()
@@ -190,7 +189,7 @@ def save_basic_plots(df, dataset_name):
         df_plot[df_plot["label"] == 0]["cascade_size"].dropna(),
         df_plot[df_plot["label"] == 1]["cascade_size"].dropna(),
     ]
-    plt.boxplot(data, labels=["real", "fake"])
+    plt.boxplot(data, tick_labels=["real", "fake"])
     plt.ylabel("Cascade Size")
     plt.title(f"{dataset_name}: Cascade Size by Label")
     plt.tight_layout()
@@ -199,6 +198,9 @@ def save_basic_plots(df, dataset_name):
 
 
 def main():
+    results_dir = BASE_DIR / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+
     for dataset in ["politifact", "gossipcop"]:
         print(f"\n=== {dataset.upper()} ===")
 
@@ -239,7 +241,7 @@ def main():
         print("\nMissingness summary:")
         print(df[cols + ["num_valid_times"]].isna().sum())
 
-        out_csv = BASE_DIR / "project" / f"{dataset}_temporal_metrics.csv"
+        out_csv = results_dir / f"{dataset}_temporal_metrics.csv"
         df.to_csv(out_csv, index=False)
         print(f"\nSaved CSV: {out_csv}")
 
