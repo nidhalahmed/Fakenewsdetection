@@ -21,14 +21,15 @@ can improve performance.
 
 ## 🎯 Objectives
 
-* Reproduce a **baseline graph-based fake news detection model (UPFD-style)**
-* Compare **content vs propagation-based approaches**
-* Evaluate the impact of:
+## 🎯 Objectives
 
-  * Structural (topological) features
-  * Temporal propagation features
-* Perform **controlled experiments on the same dataset (FakeNewsNet)**
-
+* Reproduce a controlled **graph-based fake news detection baseline** on FakeNewsNet
+* Evaluate whether adding explicit:
+  * **topological features** (degree, clustering, PageRank)
+  * **temporal propagation features** (cascade dynamics, burstiness)
+  improves graph classification performance
+* Compare feature variants under a **fixed graph architecture**
+* Analyze how results differ across **Politifact** and **GossipCop**
 ---
 
 ## 🗂️ Repository Structure
@@ -37,21 +38,31 @@ can improve performance.
 .
 ├── data/                  # FakeNewsNet dataset (Politifact, GossipCop)
 ├── gnn/
-│   ├── models/            # Model implementations
-│   │   ├── dou.py         # UPFD
-│   │   ├── xu_baseline.py # Topological feature model
-│   │   ├── xu_pagerank.py # Topology + PageRank
-│   │   └── temporal.py    # Temporal feature model
-│   │
-│   └── analysis/          # Feature extraction scripts
+│   ├── models/            # Main graph models
+│   │   ├── gin_base.py
+│   │   ├── gin_topo.py
+│   │   ├── gin_topo_pr.py
+│   │   ├── gin_topo_temp.py
+│   │   ├── gin_temp.py
+│   │   └── extra_models/  # Additional exploratory variants
+│   │       ├── gin_pr.py
+│   │       ├── gin_temp_pr.py
+│   │       └── ginplus.py
+│   └── analysis/
 │       └── temporal_analysis.py
-│
-├── results/               # Generated outputs
-│   ├── *.csv              # Temporal metrics
-│   └── temporal_plots/    # Visualizations
-│
-├── utils/                 # Data loading & evaluation utilities
-├── scripts/               # Run scripts (optional)
+├── results/
+│   ├── logs/
+│   ├── output.md
+│   ├── politifact_temporal_metrics.csv
+│   ├── gossipcop_temporal_metrics.csv
+│   └── temporal_plots/
+├── scripts/
+│   └── run_models.sh
+├── utils/
+│   ├── data_loader.py
+│   ├── eval_helper.py
+│   ├── profile_feature.py
+│   └── twitter_crawler.py
 ├── README.md
 └── requirements.txt
 ```
@@ -83,25 +94,31 @@ Run from the project root:
 ### Baseline (UPFD-style)
 
 ```bash
-python gnn/models/dou.py --dataset politifact --feature bert
+python gnn/models/gin_base.py --dataset politifact --feature bert
 ```
 
 ### Topological Features (Xu-style)
 
 ```bash
-python gnn/models/xu_baseline.py --dataset politifact --feature bert
+python gnn/models/gin_topo.py --dataset politifact --feature bert
 ```
 
 ### + PageRank
 
 ```bash
-python gnn/models/xu_pagerank.py --dataset politifact --feature bert
+python gnn/models/gin_topo_pr.py --dataset politifact --feature bert
 ```
 
-### Temporal Features
+### + Temporal Features
 
 ```bash
-python gnn/models/temporal.py --dataset politifact --feature bert
+python gnn/models/gin_topo_temp.py --dataset politifact --feature bert
+```
+
+### Pure Temporal Features
+
+```bash
+python gnn/models/gin_temp.py --dataset politifact --feature bert
 ```
 
 ---
@@ -109,55 +126,48 @@ python gnn/models/temporal.py --dataset politifact --feature bert
 ## 📊 Feature Engineering
 
 ### Structural Features
-
+Computed with NetworkX and appended to node features:
 * Degree centrality
 * Clustering coefficient
 * PageRank
 
-Computed using **NetworkX** and appended to node features.
-
 ### Temporal Features
-
-Extracted from propagation timestamps:
-
+Computed from propagation timestamps at the graph level:
 * Cascade size
 * Lifetime
 * Burstiness
-* Inter-arrival statistics
+* t50
 
-Generated via:
-
-```bash
-python gnn/analysis/temporal_analysis.py
-```
-
+Additional descriptive temporal statistics are also extracted during analysis and saved as CSVs for inspection.
 ---
 
 ## 📈 Experimental Setup
 
 * Dataset: **FakeNewsNet**
-
   * Politifact
   * GossipCop
-* Task: Graph classification (fake vs real)
-* Models evaluated:
-
-  * Text-only baseline (optional)
-  * Graph baseline (UPFD-style)
-  * Graph + topology
-  * Graph + temporal features
+* Task: Graph classification (**fake vs real**)
+* Input node features: **BERT-based features**
+* Graph architecture: **GIN + attention-based pooling**
+* Data split: fixed **UPFD / FakeNewsNet benchmark split**
+* Main evaluated variants:
+  * `gin_base` — baseline
+  * `gin_topo` — + topology
+  * `gin_topo_pr` — + topology + PageRank
+  * `gin_topo_temp` — + topology + temporal
+  * `gin_temp` — + temporal
 
 ---
 
-## 🔍 Key Insight (Preliminary)
+## 🔍 Key Findings
 
-* Graph-based models outperform purely text-based approaches in many cases
-* Structural and temporal features show **mixed impact**
-* Improvements appear **dataset-dependent**, suggesting:
-
-  * Propagation patterns differ across domains
-  * GNNs may already capture some structural signals implicitly
-
+* Feature effectiveness is **dataset-dependent**
+* On **Politifact**, temporal features are the strongest addition among the tested variants
+* On **GossipCop**, richer structural combinations perform better
+* Explicit structural features do not uniformly improve performance, suggesting that:
+  * some signals may already be captured implicitly by the GNN
+  * additional features can introduce noise, especially in smaller datasets
+  
 ---
 
 ## 🙏 Acknowledgment
